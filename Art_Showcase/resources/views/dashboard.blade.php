@@ -1,17 +1,26 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app') 
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+@section('title', 'Dashboard')
+
+@section('content')
+    <h1 class="mb-4">Dashboard Utama</h1>
+
+    @if (Auth::user()->role === 'admin')
+        {{-- Redirect ke halaman spesifik Admin di Controller --}}
+        @include('admin.dashboard.main') 
+        
+    @elseif (Auth::user()->role === 'curator')
+        @if (!Auth::user()->is_approved)
+            @include('curator.dashboard.pending')
+        @else
+            @include('curator.dashboard.main')
+        @endif
+        
+    @elseif (Auth::user()->role === 'member')
+        @include('member.dashboard.main')
+        
+    @else
+        <div class="alert alert-warning">Role Anda tidak dikenali. Silakan hubungi Admin.</div>
+    @endif
+    
+@endsection 

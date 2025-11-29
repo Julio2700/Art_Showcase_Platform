@@ -1,29 +1,31 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app') 
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
-            </div>
+@section('title', 'Pengaturan Profil')
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
-            </div>
+@section('content')
+    <h2 class="mb-4">Pengaturan Profil</h2>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
-                </div>
-            </div>
-        </div>
+    <div class="card p-4 mb-4">
+        {{-- Section: Update Profile Information --}}
+        @include('profile.partials.update-profile-information-form')
+        
+        <p class="mt-3">Role Anda saat ini: <span class="badge bg-secondary">{{ $user->role }}</span></p>
+        @if ($user->role === 'curator')
+            <p>Status Persetujuan: 
+                <span class="badge {{ $user->is_approved ? 'bg-success' : 'bg-warning' }}">
+                    {{ $user->is_approved ? 'Disetujui' : 'Pending' }}
+                </span>
+            </p>
+        @endif
     </div>
-</x-app-layout>
+
+    <div class="card p-4 mb-4">
+        {{-- Section: Update Password --}}
+        @include('profile.partials.update-password-form')
+    </div>
+
+    <div class="card p-4">
+        {{-- Section: Delete Account --}}
+        @include('profile.partials.delete-user-form')
+    </div>
+@endsection

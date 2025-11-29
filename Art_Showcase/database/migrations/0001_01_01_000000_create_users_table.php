@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $$table->string('role')->default('member');
+            $table->string('display_name')->nullable(); // Tambahan untuk profil
+            $table->string('role')->default('member');
+            $table->boolean('is_approved')->default(false); // Untuk Curator Approval
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
