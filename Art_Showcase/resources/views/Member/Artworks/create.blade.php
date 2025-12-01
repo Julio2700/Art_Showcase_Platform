@@ -24,14 +24,25 @@
 
             <div class="mb-3">
                 <label for="category_id" class="form-label">Kategori <span class="text-danger">*</span></label>
-                <select class="form-select @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
-                    <option value="">Pilih Kategori</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                            {{ $category->name }}
-                        </option>
-                    @endforeach
-                </select>
+                
+                {{-- 💡 PERBAIKAN: Menambahkan Guardrail View --}}
+                @if ($categories->isEmpty())
+                    <div class="alert alert-warning p-2">
+                        Belum ada kategori yang tersedia. Mohon hubungi Admin untuk menambahkannya.
+                    </div>
+                    <input type="hidden" name="category_id" value=""> 
+                @else
+                    <select class="form-select @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
+                        <option value="">Pilih Kategori</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                @endif
+                {{-- Akhir Perbaikan Guardrail --}}
+                
                 @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
 
@@ -47,7 +58,7 @@
                 @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit Karya</button>
+            <button type="submit" class="btn btn-primary" {{ $categories->isEmpty() ? 'disabled' : '' }}>Submit Karya</button>
             <a href="{{ route('member.artworks.index') }}" class="btn btn-secondary">Batal</a>
         </form>
     </div>

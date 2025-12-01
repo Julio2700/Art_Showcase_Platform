@@ -8,24 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ChallengeController extends Controller
 {
-    /**
-     * Menampilkan daftar semua challenge yang dibuat oleh Curator yang sedang login.
-     */
-    public function index(): View
-    {
-        $challenges = Challenge::where('curator_id', Auth::id())
-                            ->withCount('submissions')
-                            ->latest()
-                            ->paginate(10);
-                            
-        return view('curator.challenges.index', compact('challenges'));
-    }
+    // ... (index, show, edit, update, destroy methods) ...
 
     /**
-     * Menampilkan formulir untuk membuat challenge baru.
+     * CREATE: Menampilkan formulir tambah challenge.
      */
     public function create(): View
     {
@@ -33,7 +23,7 @@ class ChallengeController extends Controller
     }
 
     /**
-     * Menyimpan challenge baru ke database.
+     * STORE: Menyimpan challenge baru.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -42,107 +32,131 @@ class ChallengeController extends Controller
             'description' => 'required|string',
             'starts_at' => 'required|date|after_or_equal:today',
             'ends_at' => 'required|date|after:starts_at',
-            'banner_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            // Aturan dan Hadiah bisa digabung di description atau kolom terpisah jika perlu
+            'banner_path' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:3072', // Maks 3MB
         ]);
-        
-        // Handle File Upload (Banner)
-        if ($request->hasFile('banner_path')) {
-            $path = $request->file('banner_path')->store('challenges/banners', 'public');
-            $validated['banner_path'] = $path;
-        }
 
-        // Set curator_id otomatis
-        $validated['curator_id'] = Auth::id();
+        // 1. Handle File Upload (Simpan banner)
+        $path = $request->file('banner_path')->store('challenges/banners', 'public');
 
-        Challenge::create($validated);
+        // 2. Buat Challenge
+        Challenge::create([
+            'curator_id' => Auth::id(),
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'starts_at' => $validated['starts_at'],
+            'ends_at' => $validated['ends_at'],
+            'banner_path' => $path,
+        ]);
 
         return redirect()->route('curator.challenges.index')
-                         ->with('success', 'Challenge berhasil dibuat.');
+                         ->with('success', 'Challenge baru berhasil dibuat dan aktif!');
     }
 
     /**
-     * Menampilkan detail challenge dan galeri submission.
+     * INDEX: Menampilkan daftar semua challenge yang dibuat oleh Curator yang login.
      */
-    public function show(Challenge $challenge): View
+    public function index(): View
     {
-        // Otorisasi: Hanya curator pembuat yang boleh melihat di dashboard mereka
-        if ($challenge->curator_id !== Auth::id()) {
-            abort(403, 'Anda tidak berhak melihat challenge ini.');
-        }
-
-        $submissions = $challenge->submissions()->with('artwork.user')->latest()->paginate(20);
+        $curatorId = Auth::id();
         
-        return view('curator.challenges.show', compact('challenge', 'submissions'));
+        // Memuat challenge milik curator saat ini, dan menghitung submissions untuk setiap challenge
+        $challenges = Challenge::where('curator_id', $curatorId)
+                               ->withCount('submissions')
+                               ->latest()
+                               ->paginate(10);
+                               
+        return view('curator.challenges.index', compact('challenges'));
     }
 
     /**
-     * Menampilkan formulir untuk mengedit challenge.
+     * EDIT: Menampilkan formulir edit challenge.
+     * Route: GET /curator/challenges/{challenge}/edit (curator.challenges.edit)
      */
     public function edit(Challenge $challenge): View
     {
-        // Otorisasi: Hanya curator pembuat yang boleh mengedit
+        // Otorisasi: Hanya Curator pembuat yang bisa mengedit
         if ($challenge->curator_id !== Auth::id()) {
             abort(403, 'Anda tidak berhak mengedit challenge ini.');
         }
+        
+        // Cek apakah challenge sudah berakhir
+        if ($challenge->ends_at->isPast()) {
+            return redirect()->route('curator.challenges.index')
+                             ->with('error', 'Challenge yang sudah berakhir tidak dapat diedit.');
+        }
+
         return view('curator.challenges.edit', compact('challenge'));
     }
 
     /**
-     * Memperbarui challenge di database.
+     * UPDATE: Memperbarui challenge yang sudah ada.
+     * Route: PUT/PATCH /curator/challenges/{challenge} (curator.challenges.update)
      */
     public function update(Request $request, Challenge $challenge): RedirectResponse
     {
-        // Otorisasi: Hanya curator pembuat yang boleh mengupdate
+        // Otorisasi: Hanya Curator pembuat
         if ($challenge->curator_id !== Auth::id()) {
             abort(403, 'Anda tidak berhak memperbarui challenge ini.');
         }
         
+        // Validasi
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'starts_at' => 'required|date|after_or_equal:today',
             'ends_at' => 'required|date|after:starts_at',
-            'banner_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'banner_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:3072', // Opsional saat update
         ]);
-        
-        // Handle File Upload dan Hapus File Lama jika ada
+
+        $updateData = [
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'starts_at' => $validated['starts_at'],
+            'ends_at' => $validated['ends_at'],
+        ];
+
+        // Handle File Update
         if ($request->hasFile('banner_path')) {
-            // Logika Hapus File Lama (Opsional, perlu import Storage)
-            // Storage::delete($challenge->banner_path);
-            
+            // Hapus file lama jika ada
+            if ($challenge->banner_path) {
+                Storage::disk('public')->delete($challenge->banner_path);
+            }
+            // Upload file baru
             $path = $request->file('banner_path')->store('challenges/banners', 'public');
-            $validated['banner_path'] = $path;
+            $updateData['banner_path'] = $path;
         }
 
-        $challenge->update($validated);
+        $challenge->update($updateData);
 
         return redirect()->route('curator.challenges.index')
-                         ->with('success', 'Challenge berhasil diperbarui.');
+                         ->with('success', "Challenge '{$challenge->title}' berhasil diperbarui.");
     }
 
     /**
-     * Menghapus challenge dari database.
+     * DESTROY: Menghapus challenge.
+     * Route: DELETE /curator/challenges/{challenge} (curator.challenges.destroy)
      */
     public function destroy(Challenge $challenge): RedirectResponse
     {
-        // Otorisasi: Hanya curator pembuat yang boleh menghapus
+        // 1. Otorisasi: Hanya Curator pembuat yang bisa menghapus
         if ($challenge->curator_id !== Auth::id()) {
             abort(403, 'Anda tidak berhak menghapus challenge ini.');
         }
         
-        // Pengecekan: Pastikan tidak ada submission aktif (Opsional)
-        // Jika ada submissions, Challenge tidak boleh dihapus agar integritas data terjaga
-        if ($challenge->submissions()->count() > 0) {
-             return back()->with('error', 'Gagal: Challenge ini sudah memiliki submission.');
+        // 2. Guardrail: Cek apakah sudah ada submissions
+        if ($challenge->submissions()->exists()) {
+            return back()->with('error', 'Gagal: Challenge ini tidak dapat dihapus karena sudah memiliki submissions.');
         }
 
-        // Hapus file banner sebelum menghapus record
-        // Storage::delete($challenge->banner_path); 
-
+        // 3. Hapus file fisik (banner)
+        if ($challenge->banner_path) {
+            Storage::disk('public')->delete($challenge->banner_path);
+        }
+        
+        // 4. Hapus record Challenge (Relasi cascade akan menghapus submissions jika ada)
         $challenge->delete();
 
         return redirect()->route('curator.challenges.index')
-                         ->with('success', 'Challenge berhasil dihapus.');
+                         ->with('success', "Challenge '{$challenge->title}' berhasil dihapus.");
     }
 }

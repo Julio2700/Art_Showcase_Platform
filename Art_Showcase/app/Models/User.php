@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -21,8 +20,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        // 💡 TAMBAHKAN KOLOM-KOLOM KRITIS INI:
+        'role',          
+        'display_name',
+        'is_approved', 
     ];
-
     /**
      * The attributes that should be hidden for serialization.
      *

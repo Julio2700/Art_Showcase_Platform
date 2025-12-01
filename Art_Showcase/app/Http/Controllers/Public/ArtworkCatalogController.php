@@ -45,6 +45,18 @@ class ArtworkCatalogController extends Controller
                                ->take(3)
                                ->get();
 
+        // 💡 PERBAIKAN: Hapus baris 'return' yang tidak pada tempatnya.
+        // return view('public.catalog.index', compact('artworks', 'categories', 'challenges')); // <--- Hapus atau Non-Aktifkan Baris Ini
+
+        // 💡 Logika Kondisional yang Benar
+        if ($request->routeIs('homepage')) {
+            // Jika diakses melalui route 'homepage' (yaitu route '/')
+            // Tampilkan view yang berisi preview (welcome.blade.php)
+            return view('welcome', compact('artworks', 'categories', 'challenges'));
+        }
+
+        // Jika diakses melalui route lain (yaitu route 'artworks.catalog' atau /catalog)
+        // Tampilkan view galeri penuh (public.catalog.index.blade.php)
         return view('public.catalog.index', compact('artworks', 'categories', 'challenges'));
     }
 

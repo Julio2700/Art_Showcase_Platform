@@ -1,8 +1,9 @@
-@extends('layouts.guest') 
+{{-- Hapus @extends dan @section dan ganti dengan Blade Component <x-guest-layout> --}}
+<x-guest-layout> 
+    
+    {{-- Anda bisa menambahkan judul di sini, tetapi konten utama harus langsung di dalam layout component --}}
+    <h2 class="text-2xl font-bold mb-4 text-center">Menunggu Persetujuan</h2>
 
-@section('title', 'Menunggu Persetujuan')
-
-@section('content')
     <div class="card p-4 text-center">
         <i class="bi bi-clock-history h1 text-warning"></i>
         <h2 class="mt-3">Akun Anda sedang ditinjau.</h2>
@@ -28,4 +29,5 @@
             </form>
         </div>
     </div>
-@endsection
+    
+</x-guest-layout>

@@ -6,26 +6,51 @@
     <div class="jumbotron text-center bg-light p-5 rounded mb-5">
         <h1 class="display-4">Tempat Kreator Memamerkan Karyanya</h1>
         <p class="lead">Jelajahi, sukai, dan ikuti challenge dari kreator terbaik dunia.</p>
-        <a href="{{ route('artworks.catalog') }}" class="btn btn-primary btn-lg mt-3">Jelajahi Galeri</a>
+        
+        {{-- TAUTAN UTAMA: MENGARAHKAN KE REGISTER JIKA INGIN IKUT INTERAKSI/KREASI --}}
+        @guest
+            <a href="{{ route('register') }}" class="btn btn-primary btn-lg mt-3">Gabung Sekarang & Unggah Karya</a>
+        @else
+            <a href="{{ route('artworks.catalog') }}" class="btn btn-primary btn-lg mt-3">Jelajahi Galeri</a>
+        @endguest
     </div>
 
     {{-- SECTION: CHALLENGE AKTIF --}}
     <h2 class="mb-4"><i class="bi bi-award-fill text-warning"></i> Challenge Aktif</h2>
     <div class="row">
+        {{-- BLOK FORELSE DIMULAI --}}
         @forelse ($challenges as $challenge)
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('storage/' . $challenge->banner_path) }}" class="card-img-top" alt="Banner" style="height: 180px; object-fit: cover;">
+                    
+                    {{-- IMG Challenge --}}
+                    <img src="{{ asset('storage/' . $challenge->banner_path) }}" 
+                         class="card-img-top" 
+                         alt="{{ $challenge->title }} Banner" 
+                         style="height: 180px; object-fit: cover;">
+                    
                     <div class="card-body">
                         <h5 class="card-title">{{ $challenge->title }}</h5>
                         <p class="card-text small text-muted">Deadline: {{ $challenge->ends_at->format('d M Y') }}</p>
-                        <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-sm btn-outline-info">Lihat Detail</a>
+                        
+                        {{-- Guardrail Login --}}
+                        @auth
+                            <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-sm btn-outline-info me-2">Lihat Detail</a>
+                            <a href="{{ route('member.submissions.create', $challenge) }}" class="btn btn-sm btn-success">Ikut Challenge</a>
+                        @else
+                            <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-sm btn-outline-info me-2">Lihat Detail</a>
+                            <a href="{{ route('login') }}" class="btn btn-sm btn-outline-success">Login untuk Ikut</a>
+                        @endauth
                     </div>
                 </div>
             </div>
+            
         @empty
-            <div class="alert alert-info">Saat ini tidak ada challenge yang sedang berlangsung.</div>
+            <div class="col-12">
+                <div class="alert alert-info">Saat ini tidak ada challenge yang sedang berlangsung.</div>
+            </div>
         @endforelse
+        {{-- BLOK FORELSE SELESAI --}}
     </div>
     
     <hr class="my-5">
@@ -41,7 +66,7 @@
     </form>
 
     <div class="row">
-        @forelse ($artworks->take(8) as $artwork) {{-- Ambil 8 karya terbaru --}}
+        @forelse ($artworks->take(8) as $artwork)
             <div class="col-md-3 mb-4">
                 <a href="{{ route('artworks.show', $artwork) }}" class="text-decoration-none text-dark">
                     <div class="card shadow-sm h-100">

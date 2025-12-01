@@ -20,8 +20,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        // Method ini dipanggil oleh Route::get('register', ...)
-        return view('auth.register'); // Pastikan ini me-return view register yang benar
+        return view('auth.register'); 
     }
 
     /**
@@ -35,7 +34,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', Rule::in(['member', 'curator'])], // Validasi untuk Role
+            'role' => ['required', 'string', Rule::in(['member', 'curator'])],
         ]);
 
         $role = $request->role;
@@ -53,8 +52,13 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        // ❌ HAPUS: Auth::login($user); <--- Auto-Login dinonaktifkan
+        
+        // 💡 REDIRECT FINAL: Semua pengguna diarahkan ke Login dengan pesan yang sesuai
+        if ($role === 'member') {
+            return redirect()->route('login')->with('success', 'Pendaftaran Member berhasil! Silakan masuk.');
+        } else {
+            return redirect()->route('login')->with('success', 'Pendaftaran Curator berhasil! Akun Anda menunggu persetujuan Admin.');
+        }
     }
 }

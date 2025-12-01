@@ -12,6 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         //
+        $middleware->alias([
+            'role.admin' => \App\Http\Middleware\Admin::class,
+            'role.curator' => \App\Http\Middleware\Curator::class,
+            'role.member' => \App\Http\Middleware\MemberOnly::class,
+            'curator.approved' => \App\Http\Middleware\CuratorApproval::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

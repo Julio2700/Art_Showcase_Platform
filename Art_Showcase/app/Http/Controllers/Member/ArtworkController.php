@@ -29,6 +29,11 @@ class ArtworkController extends Controller
     {
         $categories = Category::all();
         return view('member.artworks.create', compact('categories'));
+
+        // 💡 Pastikan ini memuat data dari database
+        $categories = Category::all(); 
+        
+        return view('member.artworks.create', compact('categories'));
     }
 
     /**
@@ -146,4 +151,6 @@ class ArtworkController extends Controller
         return redirect()->route('member.artworks.index')
                          ->with('success', 'Karya seni berhasil dihapus.');
     }
+
+    
 }

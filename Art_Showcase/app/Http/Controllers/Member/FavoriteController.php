@@ -3,21 +3,25 @@
 namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Favorite;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class FavoriteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource (My Favorites).
      */
-    public function index()
+    public function index(): View
     {
-        //
-    }
+        // Mengambil semua Favorite yang dibuat oleh user yang sedang login
+        $favorites = Favorite::where('user_id', Auth::id())
+            ->with('artwork.user') // Load artwork dan kreatornya
+            ->latest()
+            ->paginate(12);
 
-    /**
-     * Show the form for creating a new resource.
-     */
+        return view('member.favorites.index', compact('favorites'));
+    }
     public function create()
     {
         //

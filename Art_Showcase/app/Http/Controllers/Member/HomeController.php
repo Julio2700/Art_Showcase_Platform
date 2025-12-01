@@ -1,40 +1,37 @@
 <?php
 
-namespace App\Http\Controllers\Member; // <--- PASTIKAN NAMESPACE INI BENAR
+namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Diperlukan untuk logic multi-role
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class HomeController extends Controller
 {
-    /**
-     * Menangani routing dashboard berdasarkan peran (role).
-     */
-    public function index()
+    public function index(Request $request): View|RedirectResponse 
     {
-        // Panggil logic pemisahan dashboard yang sudah kita rancang
-        if (Auth::check()) {
-            $user = Auth::user();
+        $user = Auth::user(); 
 
-            switch ($user->role) {
-                case 'admin':
-                    return view('admin.dashboard.main');
-                
-                case 'curator':
-                    // Periksa approval sebelum memberikan akses penuh
-                    if (!$user->is_approved) {
-                        return view('curator.dashboard.pending');
-                    }
-                    return view('curator.dashboard.main');
-                
-                case 'member':
-                default:
-                    return view('member.dashboard');
-            }
+        if (!$user) {
+             return redirect()->route('login');
         }
-        
-        // Seharusnya tidak tercapai karena sudah ada middleware 'auth', tapi sebagai fallback
-        return redirect()->route('login');
+
+        switch ($user->role) {
+            case 'admin':
+                // Sekarang mengembalikan RedirectResponse diizinkan
+                return redirect()->route('admin.dashboard');
+                
+            case 'curator':
+                if (!$user->is_approved) {
+                    return view('curator.dashboard.pending'); 
+                }
+                return view('curator.dashboard.main');
+                
+            case 'member':
+            default:
+                return view('member.dashboard');
+        }
     }
 }

@@ -104,4 +104,16 @@ class InteractionController extends Controller
 
         return back()->with('success', 'Laporan Anda telah dikirim ke Moderation Queue.');
     }
+
+    public function deleteComment(Comment $comment): RedirectResponse
+    {
+        // Otorisasi: Hanya user yang membuat komentar yang boleh menghapusnya.
+        if ($comment->user_id !== Auth::id()) {
+            return back()->with('error', 'Anda tidak berhak menghapus komentar ini.');
+        }
+
+        $comment->delete();
+
+        return back()->with('success', 'Komentar berhasil dihapus.');
+    }
 }
