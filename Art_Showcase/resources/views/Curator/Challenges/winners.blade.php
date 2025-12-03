@@ -12,6 +12,7 @@
     @if ($submissions->isEmpty())
         <div class="alert alert-info text-center">Tidak ada submission yang tersedia untuk challenge ini.</div>
     @else
+        {{-- PASTIKAN FORM TERTUTUP DI BAGIAN AKHIR FORM --}}
         <form action="{{ route('curator.challenges.store_winners', $challenge) }}" method="POST">
             @csrf
             
@@ -43,7 +44,8 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('winner_2') <div class="invalid-feedback">{{ $message }}</div> @endror
+                    {{-- ✅ PERBAIKAN SINTAKS: Mengganti @endror menjadi @enderror --}}
+                    @error('winner_2') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 {{-- Juara 3 --}}
@@ -86,7 +88,5 @@
             @endforeach
         </div>
         <div class="mt-4 d-flex justify-content-center">
-            {{ $submissions->links() }}
-        </div>
     @endif
 @endsection

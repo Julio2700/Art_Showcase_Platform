@@ -1,4 +1,4 @@
-@extends('layout.master')
+@extends('layouts.app')
 
 @section('title', 'Detail Karya: ' . $artwork->title)
 
@@ -26,6 +26,9 @@
                     @endif
                 </div>
             </div>
+
+            <img src="{{ $artwork->user->avatar_path ? asset('storage/' . $artwork->user->avatar_path) : 'https://via.placeholder.com/100/CCCCCC/FFFFFF?text=AVATAR' }}" 
+         class="rounded-circle mb-3" alt="Avatar" style="width: 100px; height: 100px; object-fit: cover;">
             
             {{-- Bagian Komentar --}}
             <h3 class="mb-3"><i class="bi bi-chat-dots-fill"></i> Komentar ({{ $artwork->comments->count() }})</h3>

@@ -18,7 +18,7 @@ class ReportController extends Controller
         $status = $request->get('status', 'pending');
 
         $reports = Report::query()
-            ->with(['user:id,name', 'artwork:id,title']) // Eager load relasi
+            ->with(['user:id,name', 'artwork.user:id,name,display_name,avatar_path']) 
             ->where('status', $status)
             ->latest()
             ->paginate(15)
@@ -26,7 +26,6 @@ class ReportController extends Controller
 
         return view('admin.reports.index', compact('reports', 'status'));
     }
-
     // Menampilkan detail laporan dan karya yang dilaporkan
     public function show(Report $report): View
     {

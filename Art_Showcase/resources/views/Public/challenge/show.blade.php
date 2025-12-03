@@ -15,7 +15,7 @@
     <div class="row">
         
         {{-- KOLOM KIRI: DESKRIPSI & SUBMISSIONS --}}
-        <div class="col-lg-8">
+        <div class="col-lg-8 col-md-12">
             <div class="card mb-4 shadow-sm">
                 <img src="{{ asset('storage/' . $challenge->banner_path) }}" class="card-img-top" alt="{{ $challenge->title }} Banner">
                 <div class="card-body">
@@ -48,14 +48,28 @@
             @if ($submissions->isEmpty() && !$is_over)
                  <div class="alert alert-warning text-center">Belum ada submission. Jadilah yang pertama!</div>
             @else
-                <div class="row row-cols-1 row-cols-md-4 g-4">
+                {{-- 💡 PERBAIKAN: Menggunakan MASONRY GRID untuk tampilan responsif --}}
+                <div class="masonry-grid" style="column-count: 3; column-gap: 15px;"> 
                     @foreach ($submissions as $submission)
-                        <div class="col">
-                            <a href="{{ route('artworks.show', $submission->artwork) }}" class="text-decoration-none text-dark">
-                                <div class="card h-100 shadow-sm">
-                                    <img src="{{ asset('storage/' . $submission->artwork->file_path) }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Artwork">
+                        <div class="masonry-item">
+                            <a href="{{ route('artworks.show', $submission->artwork) }}" class="text-decoration-none text-dark d-block">
+                                <div class="card shadow-sm mb-4 pinterest-card" style="transition: all 0.3s;">
+                                    {{-- Image --}}
+                                    <div class="img-wrapper">
+                                        <img src="{{ asset('storage/' . $submission->artwork->file_path) }}" 
+                                             class="card-img-top" 
+                                             alt="{{ $submission->artwork->title }}" 
+                                             style="width: 100%; height: auto; display: block; object-fit: cover;">
+                                        <div class="card-overlay">
+                                            <div class="overlay-content">
+                                                <i class="bi bi-eye-fill h4 mb-2 text-white"></i>
+                                                <p class="mb-0 text-white small">Lihat Karya</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
                                     <div class="card-body p-2">
-                                        <p class="card-title small mb-1">{{ Str::limit($submission->artwork->title, 20) }}</p>
+                                        <p class="card-title small mb-1 fw-bold">{{ Str::limit($submission->artwork->title, 20) }}</p>
                                         <p class="small text-muted mb-0">by {{ $submission->artwork->user->display_name ?? $submission->artwork->user->name }}</p>
                                     </div>
                                 </div>
@@ -63,6 +77,7 @@
                         </div>
                     @endforeach
                 </div>
+                
                 <div class="mt-4 d-flex justify-content-center">
                     {{ $submissions->links() }}
                 </div>
@@ -70,7 +85,7 @@
         </div>
         
         {{-- KOLOM KANAN: STATUS & PEMENANG --}}
-        <div class="col-lg-4">
+        <div class="col-lg-4 col-md-12">
             <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-dark text-white">Status Challenge</div>
                 <div class="card-body">
@@ -99,7 +114,7 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <strong>Juara {{ $winner->placement }}</strong>
                                 <span>
-                                    <a href="{{ route('artworks.show', $winner->artwork) }}" class="text-decoration-none">
+                                    <a href="{{ route('artworks.show', $winner->artwork) }}" class="text-decoration-none text-primary">
                                         {{ Str::limit($winner->artwork->title, 20) }}
                                     </a>
                                     (oleh {{ $winner->artwork->user->display_name ?? $winner->artwork->user->name }})

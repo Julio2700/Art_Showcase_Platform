@@ -20,10 +20,17 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        // 💡 TAMBAHKAN KOLOM-KOLOM KRITIS INI:
         'role',          
         'display_name',
         'is_approved', 
+        'name',
+        //------------\\
+        'display_name',
+        'email',
+        'password',
+        'role',          
+        'is_approved', 
+        'avatar_path',
     ];
     /**
      * The attributes that should be hidden for serialization.
@@ -47,4 +54,6 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    
 }

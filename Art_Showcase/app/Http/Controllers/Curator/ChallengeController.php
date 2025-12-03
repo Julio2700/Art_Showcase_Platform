@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ChallengeController extends Controller
 {
@@ -35,6 +36,9 @@ class ChallengeController extends Controller
             'banner_path' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:3072', // Maks 3MB
         ]);
 
+        $startsAt = Carbon::createFromFormat('Y-m-d\TH:i', $validated['starts_at'], config('app.timezone'));
+        $endsAt = Carbon::createFromFormat('Y-m-d\TH:i', $validated['ends_at'], config('app.timezone'));
+
         // 1. Handle File Upload (Simpan banner)
         $path = $request->file('banner_path')->store('challenges/banners', 'public');
 
@@ -43,8 +47,8 @@ class ChallengeController extends Controller
             'curator_id' => Auth::id(),
             'title' => $validated['title'],
             'description' => $validated['description'],
-            'starts_at' => $validated['starts_at'],
-            'ends_at' => $validated['ends_at'],
+            'starts_at' => $startsAt, 
+            'ends_at' => $endsAt,     
             'banner_path' => $path,
         ]);
 

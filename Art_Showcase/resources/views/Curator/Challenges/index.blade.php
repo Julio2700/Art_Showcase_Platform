@@ -26,11 +26,13 @@
                             <th>Aksi</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach ($challenges as $challenge)
                             @php
                                 $isOngoing = now()->between($challenge->starts_at, $challenge->ends_at);
                                 $isOver = now()->greaterThan($challenge->ends_at);
+                                $isUpcoming = now()->lessThan($challenge->starts_at); // Pengecekan Upcoming
                                 $hasWinners = $challenge->submissions()->where('is_winner', true)->exists();
                             @endphp
                             <tr>
@@ -50,7 +52,7 @@
                                         <span class="badge bg-primary">Selesai (Pemenang Diumumkan)</span>
                                     @elseif ($isOver && !$hasWinners)
                                         <span class="badge bg-danger">Selesai, Perlu Pemenang</span>
-                                    @else
+                                    @elseif ($isUpcoming)
                                         <span class="badge bg-warning">Akan Datang</span>
                                     @endif
                                 </td>

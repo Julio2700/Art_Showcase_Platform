@@ -1,79 +1,91 @@
 @extends('layouts.app')
 
-@section('title', 'Admin - Moderation Queue')
+@section('title', 'Admin - Moderasi Laporan')
 
 @section('content')
-    <h1 class="mb-4">Moderation Queue (Laporan Karya)</h1>
-    
-    <div class="d-flex mb-3">
-        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary me-2">
-            <i class="bi bi-arrow-left"></i> Kembali ke Manajemen User
-        </a>
-        <a href="{{ route('admin.reports.index') }}" class="btn btn-{{ request('status') == 'pending' || !request('status') ? 'danger' : 'outline-danger' }}">
-            Laporan Pending
-        </a>
-    </div>
+    <h1 class="mb-4">Moderasi Laporan</h1>
+
+    {{-- ... (Filter Navigasi Anda) ... --}}
 
     @if ($reports->isEmpty())
-        <div class="alert alert-success text-center">Tidak ada laporan **pending** yang perlu ditinjau. Moderasi bersih!</div>
+        <div class="alert alert-info text-center">Tidak ada laporan yang perlu ditinjau saat ini.</div>
     @else
-        <p class="lead text-danger">Total {{ $reports->total() }} Laporan Masuk.</p>
-        
-        <div class="row row-cols-1 g-4">
-            @foreach ($reports as $report)
-                <div class="col">
-                    <div class="card shadow-sm border-danger">
-                        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
-                            <strong>Laporan Karya: {{ $report->artwork->title }}</strong>
-                            <span class="badge bg-light text-danger">{{ $report->created_at->diffForHumans() }}</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                {{-- Preview Karya --}}
-                                <div class="col-md-3 text-center">
-                                    <img src="{{ asset('storage/' . $report->artwork->file_path) }}" class="img-thumbnail mb-2" style="height: 150px; object-fit: cover;" alt="Artwork">
-                                    <p class="mb-0 small fw-bold"><a href="{{ route('artworks.show', $report->artwork) }}" target="_blank">Lihat Karya</a></p>
-                                    <p class="small text-muted">Kreator: {{ $report->artwork->user->name }}</p>
-                                </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Karya Seni (Artwork)</th>
+                            <th>Detail Laporan</th>
+                            <th>Aksi Moderasi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($reports as $report)
+                            @php
+                                $artwork = $report->artwork;
+                                $user = $report->user;
+                            @endphp
+                            <tr class="align-top"> {{-- align-top agar konten panjang tidak mengganggu --}}
+                                <td>{{ $report->id }}</td>
                                 
-                                {{-- Detail Laporan & Aksi --}}
-                                <div class="col-md-9">
-                                    <p><strong>Dilaporkan oleh:</strong> {{ $report->user->name }} (ID: {{ $report->user->id }})</p>
-                                    <p><strong>Alasan:</strong></p>
-                                    <div class="alert alert-light border p-2">
+                                {{-- 💡 KOLOM 2: PREVIEW KARYA (Lebih Besar) --}}
+                                <td style="width: 250px;">
+                                    @if ($artwork)
+                                        {{-- Container untuk gambar yang lebih besar --}}
+                                        <div style="width: 100%; max-width: 150px; height: auto; margin-bottom: 8px;">
+                                            <img src="{{ $artwork->file_path ? asset('storage/' . $artwork->file_path) : 'placeholder_path' }}" 
+                                                class="img-thumbnail" 
+                                                style="max-width: 100%; height: auto; object-fit: contain;" 
+                                                alt="Artwork Preview">
+                                        </div>
+                                        
+                                        <div>
+                                            <strong class="text-primary">{{ Str::limit($artwork->title, 30) }}</strong><br>
+                                            <small class="text-muted">Kreator: {{ $artwork->user?->display_name ?? 'Pengguna Dihapus' }}</small>
+                                        </div>
+                                    @else
+                                        <span class="text-danger">Karya Dihapus</span>
+                                    @endif
+                                </td>
+
+                                {{-- KOLOM 3: DETAIL LAPORAN --}}
+                                <td>
+                                    <p class="mb-1 small"><strong>Dilaporkan oleh:</strong> {{ $user?->name ?? 'Pengguna Dihapus' }}</p>
+                                    <p class="mb-1"><strong>Alasan:</strong></p>
+                                    <div class="alert alert-light border p-2 mb-2">
                                         {{ $report->reason }}
                                     </div>
+                                    <p class="text-muted small">Waktu: {{ $report->created_at->diffForHumans() }}</p>
+                                    <a href="{{ route('artworks.show', $artwork) }}" target="_blank" class="small fw-bold">Lihat Halaman Publik</a>
+                                </td>
 
-                                    <div class="mt-3">
-                                        <p><strong>Aksi Moderasi:</strong></p>
-                                        
-                                        {{-- Aksi 1: Take Down (Update status report ke 'taken_down') --}}
-                                        <form action="{{ route('admin.reports.update', $report) }}" method="POST" class="d-inline" onsubmit="return confirm('APAKAH ANDA YAKIN? Tindakan ini akan menghapus karya seni terkait.')">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="taken_down">
-                                            <button type="submit" class="btn btn-sm btn-danger me-2">
-                                                <i class="bi bi-x-octagon-fill"></i> Hapus Karya & Setujui
-                                            </button>
-                                        </form>
+                                {{-- KOLOM 4: AKSI MODERASI --}}
+                                <td style="width: 180px;">
+                                    {{-- 1. Tombol HAPUS KARYA & SETUJUI LAPORAN (Taken Down) --}}
+                                    <form action="{{ route('admin.reports.update', $report) }}" method="POST" onsubmit="return confirm('Hapus permanen karya ini dan setujui laporan?')" class="mb-2">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="taken_down">
+                                        <button type="submit" class="btn btn-danger btn-sm w-100">Hapus Karya & Setujui</button>
+                                    </form>
 
-                                        {{-- Aksi 2: Dismiss (Update status report ke 'dismissed') --}}
-                                        <form action="{{ route('admin.reports.update', $report) }}" method="POST" class="d-inline" onsubmit="return confirm('Tandai laporan ini sebagai ditolak/selesai?')">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="dismissed">
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="bi bi-check-circle-fill"></i> Abaikan & Selesaikan
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
+                                    {{-- 2. Tombol ABAIKAN & SELESAIKAN (Dismissed) --}}
+                                    <form action="{{ route('admin.reports.update', $report) }}" method="POST" onsubmit="return confirm('Tandai sebagai selesai dan abaikan laporan?')" class="d-inline">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="dismissed">
+                                        <button type="submit" class="btn btn-success btn-sm w-100">Abaikan & Selesaikan</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
+        
         <div class="mt-4 d-flex justify-content-center">
             {{ $reports->links() }}
         </div>

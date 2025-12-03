@@ -1,5 +1,3 @@
-// resources/views/curator/challenges/create.blade.php
-
 @extends('layouts.app')
 
 @section('title', 'Curator - Buat Challenge Baru')

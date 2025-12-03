@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-6 text-center text-2xl font-bold text-gray-800">
-        {{ __('Masuk ke Art Showcase') }}
+        {{ __('Masuk ke 𝒥𝒰𝐿𝐸𝒮') }}
     </div>
 
     @if (session('status'))
@@ -12,7 +12,6 @@
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email Address -->
         <div class="mb-4">
             <label for="email" class="block font-medium text-sm text-gray-700">{{ __('Email') }}</label>
             <input id="email" class="block w-full border-gray-300 rounded-md shadow-sm mt-1 focus:border-indigo-500 focus:ring-indigo-500" 
@@ -22,7 +21,6 @@
             @enderror
         </div>
 
-        <!-- Password -->
         <div class="mt-4 mb-4">
             <label for="password" class="block font-medium text-sm text-gray-700">{{ __('Password') }}</label>
             <input id="password" class="block w-full border-gray-300 rounded-md shadow-sm mt-1 focus:border-indigo-500 focus:ring-indigo-500"
@@ -32,7 +30,6 @@
             @enderror
         </div>
 
-        <!-- Remember Me & Forgot Password -->
         <div class="flex justify-between items-center mt-4">
             <label for="remember_me" class="inline-flex items-center">
                 <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">

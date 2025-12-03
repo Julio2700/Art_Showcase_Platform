@@ -10,7 +10,7 @@ use Illuminate\Http\RedirectResponse;
 
 class HomeController extends Controller
 {
-    public function index(Request $request): View|RedirectResponse 
+   public function index(Request $request): View|RedirectResponse 
     {
         $user = Auth::user(); 
 
@@ -20,18 +20,17 @@ class HomeController extends Controller
 
         switch ($user->role) {
             case 'admin':
-                // Sekarang mengembalikan RedirectResponse diizinkan
                 return redirect()->route('admin.dashboard');
                 
             case 'curator':
                 if (!$user->is_approved) {
                     return view('curator.dashboard.pending'); 
                 }
-                return view('curator.dashboard.main');
+                return view('curator.dashboard.main'); 
                 
             case 'member':
             default:
-                return view('member.dashboard');
+                return view('member.dashboard'); 
         }
     }
 }

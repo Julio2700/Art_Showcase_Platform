@@ -68,9 +68,9 @@ class ArtworkCatalogController extends Controller
         // Load data interaksi: likes, comments, user, etc.
         // Kita perlu memuat semua like dan favorite untuk user yang sedang login
         $artwork->load([
-            'user', 
-            'category', 
-            'comments.user', 
+        'user',         
+        'category', 
+        'comments.user', 
         ]);
         
         // --- Logic Interaksi untuk Front-end (Mengirim Status Interaksi) ---

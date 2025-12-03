@@ -3,10 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Import Controllers Publik
 use App\Http\Controllers\Public\ArtworkCatalogController; 
 use App\Http\Controllers\Public\ChallengeController; 
-// Import Home Controller (Untuk dashboard setelah login)
 use App\Http\Controllers\Member\HomeController; 
 
 
@@ -50,4 +48,6 @@ Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->nam
 
 
 ### 2. File Perbaikan: `routes/auth.php` (Mendefinisikan `admin.dashboard`)
+
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 

@@ -37,14 +37,14 @@
         
         {{-- KARTU 1: TOTAL CHALLENGE DIBUAT --}}
         <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-award-fill me-2"></i> Challenge Dibuat</h5>
-                    <p class="card-text display-4 fw-bold">{{ $totalChallenges }}</p>
-                    <a href="{{ route('curator.challenges.index') }}" class="btn btn-sm btn-light text-primary w-100">Kelola Semua Challenge</a>
-                </div>
-            </div>
+    <div class="card h-100 shadow bg-primary text-white">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-award-fill me-2"></i> Challenge Dibuat</h5>
+            <p class="card-text display-4 fw-bold text-white">{{ $totalChallenges }}</p>
+            <a href="{{ route('curator.challenges.index') }}" class="btn btn-sm btn-light text-primary w-100">Kelola Semua Challenge</a> 
         </div>
+    </div>
+</div>
 
         {{-- KARTU 2: TOTAL SUBMISSIONS DITERIMA --}}
         <div class="col-md-4 mb-4">

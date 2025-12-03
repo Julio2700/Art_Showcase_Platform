@@ -42,7 +42,8 @@
                     <h5 class="card-title text-danger"><i class="bi bi-flag-fill me-2"></i> Laporan Pending</h5>
                     <p class="card-text display-4 fw-bold">{{ $pendingReportCount }}</p>
                     <a href="{{ route('admin.reports.index', ['status' => 'pending']) }}" class="btn btn-sm btn-danger w-100">
-                        Moderasi
+                    Moderasi
+                    </a>
                     </a>
                 </div>
             </div>
@@ -50,15 +51,14 @@
 
         {{-- KARTU 3: TOTAL KARYA --}}
         <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow border-success">
-                <div class="card-body">
-                    <h5 class="card-title text-success"><i class="bi bi-palette-fill me-2"></i> Total Karya</h5>
-                    <p class="card-text display-4 fw-bold">{{ \App\Models\Artwork::count() }}</p>
-                    <p class="text-muted small">Karya terunggah di platform.</p>
-                </div>
-            </div>
+    <div class="card h-100 shadow border-success bg-success text-white">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-palette-fill me-2"></i> Total Karya</h5>
+            <p class="card-text display-4 fw-bold text-white">{{ \App\Models\Artwork::count() }}</p>
+            <p class="text-white small">Karya terunggah di platform.</p>
         </div>
     </div>
+</div>
     
     <hr class="my-4">
 

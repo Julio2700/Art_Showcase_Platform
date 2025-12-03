@@ -33,7 +33,8 @@
                 <div class="col-md-6 mb-3">
                     <label for="starts_at" class="form-label">Tanggal Mulai <span class="text-danger">*</span></label>
                     {{-- Format tanggal/waktu harus disiapkan agar sesuai dengan input datetime-local --}}
-                    <input type="datetime-local" class="form-control @error('starts_at') is-invalid @enderror" id="starts_at" name="starts_at" value="{{ old('starts_at', $challenge->starts_at?->format('Y-m-d\TH:i')) }}" required>
+                    <input type="datetime-local" class="form-control" name="starts_at" 
+                    value="{{ old('starts_at', $challenge->starts_at?->format('Y-m-d\TH:i')) }}" required>
                     @error('starts_at') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">

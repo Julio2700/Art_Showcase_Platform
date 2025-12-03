@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Curator;
 
 use App\Http\Controllers\Controller;
-use App\Models\Submission;
 use App\Models\Challenge;
+use App\Models\Artwork;
+use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class SubmissionController extends Controller
 {
@@ -76,13 +79,70 @@ class SubmissionController extends Controller
      */
     public function destroy(Submission $submission): RedirectResponse
     {
-        // Otorisasi: Memastikan Challenge ini milik Curator yang sedang login
+        // Otorisasi: Hanya Challenge Curator yang bisa menolak submission
         if ($submission->challenge->curator_id !== Auth::id()) {
-            abort(403, 'Akses Ditolak.');
+            abort(403, 'Anda tidak berhak menolak submission ini.');
         }
-        
+
         $submission->delete();
-        
-        return back()->with('success', 'Submission berhasil dihapus dari Challenge.');
+
+        return back()->with('success', 'Submission berhasil ditolak dan dihapus dari challenge.');
     }
+
+    public function showWinnersForm(Challenge $challenge): View
+    {
+        // Otorisasi: Hanya Curator pemilik challenge yang bisa memilih pemenang
+        if ($challenge->curator_id !== Auth::id()) {
+            abort(403, 'Anda tidak berhak memilih pemenang untuk challenge ini.');
+        }
+
+        // Memuat submissions yang belum ditetapkan sebagai pemenang
+        $submissions = $challenge->submissions()
+                                 ->with('artwork.user')
+                                 ->get();
+
+        return view('curator.challenges.winners', compact('challenge', 'submissions'));
+    }
+
+    public function storeWinners(Request $request, Challenge $challenge): RedirectResponse
+    {
+        // 1. Otorisasi
+        if ($challenge->curator_id !== Auth::id()) {
+            abort(403, 'Anda tidak berhak menetapkan pemenang untuk challenge ini.');
+        }
+
+        // 2. Validasi ID Submission dan mencegah duplikasi
+        $validated = $request->validate([
+            'winner_1' => ['required', 'exists:submissions,id'],
+            'winner_2' => ['required', 'exists:submissions,id', 'different:winner_1'],
+            'winner_3' => ['required', 'exists:submissions,id', 'different:winner_1', 'different:winner_2'],
+        ]);
+
+        // 3. Pengecekan Kritis: Challenge harus sudah berakhir
+        if (now()->lessThan($challenge->ends_at)) {
+             return back()->with('error', 'Challenge belum berakhir. Pemenang hanya dapat ditetapkan setelah deadline.');
+        }
+
+        // 4. Update Database (Massal, untuk memastikan atomisitas)
+        DB::transaction(function () use ($validated) {
+            
+            // 4a. Reset semua status pemenang lama (jika ada)
+            Submission::whereIn('id', $validated)->update(['is_winner' => false, 'placement' => null]);
+            
+            // 4b. Tetapkan Juara 1
+            Submission::where('id', $validated['winner_1'])->update(['is_winner' => true, 'placement' => 1]);
+            
+            // 4c. Tetapkan Juara 2
+            Submission::where('id', $validated['winner_2'])->update(['is_winner' => true, 'placement' => 2]);
+            
+            // 4d. Tetapkan Juara 3
+            Submission::where('id', $validated['winner_3'])->update(['is_winner' => true, 'placement' => 3]);
+        });
+
+        return redirect()->route('curator.challenges.index')
+                         ->with('success', 'Pemenang Challenge telah berhasil ditetapkan!');
+    }
+
+    
+
 }

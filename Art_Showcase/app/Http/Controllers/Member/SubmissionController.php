@@ -18,6 +18,9 @@ class SubmissionController extends Controller
      */
     public function create(Challenge $challenge): View
     {
+        if (Auth::user()->role === 'curator') {
+            abort(403, 'Akses Ditolak: Curator tidak dapat berpartisipasi dalam challenge.');
+        }
         // Pastikan Challenge masih aktif
         if ($challenge->ends_at->isPast()) {
             return redirect()->route('challenges.show', $challenge)->with('error', 'Challenge sudah berakhir.');
@@ -34,6 +37,10 @@ class SubmissionController extends Controller
      */
     public function store(Request $request, Challenge $challenge): RedirectResponse
     {
+        if (Auth::user()->role === 'curator') {
+            return back()->with('error', 'Akses Ditolak: Curator tidak diizinkan untuk mengunggah karya ke challenge.');
+        }
+
         $validated = $request->validate([
             'artwork_id' => 'required|exists:artworks,id',
         ]);

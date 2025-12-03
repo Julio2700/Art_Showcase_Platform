@@ -17,8 +17,9 @@
         
         <div class="mt-6">
             <a href="{{ route('homepage') }}" class="text-center">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                <h1 class="text-xl font-bold text-gray-700 mt-2">Art Showcase</h1>
+                {{-- 💡 Atur ukuran di sini --}}
+                <x-application-logo class="w-20 h-20 fill-current text-gray-500" style="max-height: 80px; width: auto;" />
+                <h1 class="text-xl font-bold text-gray-700 mt-2">𝒥𝒰𝓛𝐸𝒮</h1>
             </a>
         </div>
 

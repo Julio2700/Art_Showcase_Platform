@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Art Showcase Platform - @yield('title')</title>
+    <title>JULES - @yield('title')</title>
     {{-- Menggunakan Placeholder Bootstrap --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -40,7 +40,7 @@
     {{-- FOOTER --}}
     <footer class="bg-light mt-auto py-3">
         <div class="container text-center">
-            <p class="mb-0">Hak Cipta © {{ date('Y') }} Art Showcase Platform</p>
+            <p class="mb-0">Hak Cipta © {{ date('Y') }} 𝓙𝓤𝓛𝓔𝓢 (Platform).</p>
         </div>
     </footer>
 
