@@ -49,18 +49,15 @@
                 </div>
 
                 {{-- Juara 3 --}}
-                <div class="mb-3">
-                    <label for="winner_3" class="form-label h5 text-info">Juara 3 <span class="text-danger">*</span></label>
-                    <select class="form-select @error('winner_3') is-invalid @enderror" id="winner_3" name="winner_3" required>
-                        <option value="">Pilih Karya Pemenang Ketiga</option>
-                        @foreach ($submissions as $submission)
-                            <option value="{{ $submission->id }}" {{ old('winner_3') == $submission->id ? 'selected' : '' }}>
-                                #{{ $submission->id }} - {{ $submission->artwork->title }} (by {{ $submission->artwork->user->name }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('winner_3') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+               <div class="mb-3">
+    <label for="winner_3" class="form-label h5 text-info">Juara 3</label> {{-- ❌ Hapus <span class="text-danger">*</span> --}}
+    <select class="form-select @error('winner_3') is-invalid @enderror" id="winner_3" name="winner_3"> {{-- ❌ Hapus required --}}
+        <option value="">Pilih Karya Pemenang Ketiga (Opsional)</option>
+        @foreach ($submissions as $submission)
+            @endforeach
+    </select>
+    @error('winner_3') <div class="invalid-feedback">{{ $message }}</div> @enderror
+</div>
                 
                 <button type="submit" class="btn btn-success btn-lg mt-4" onclick="return confirm('Pastikan Anda telah memilih 3 karya yang berbeda. Proses ini akan menetapkan pemenang challenge.')">
                     Tetapkan Pemenang

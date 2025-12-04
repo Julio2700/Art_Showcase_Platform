@@ -11,10 +11,9 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    // READ: Menampilkan daftar semua pengguna
     public function index(Request $request): View
     {
-        $status = $request->get('status', 'all'); // Filter berdasarkan status
+        $status = $request->get('status', 'all');
 
         $users = User::query()
             ->when($status === 'pending', function ($query) {
@@ -33,17 +32,11 @@ class UserController extends Controller
         return view('admin.users.index', compact('users', 'status'));
     }
 
-    /**
-     * UPDATE: Menampilkan formulir edit.
-     */
     public function edit(User $user): View
     {
         return view('admin.users.edit', compact('user'));
     }
 
-    /**
-     * UPDATE: Memperbarui data pengguna dari form admin/users/edit.
-     */
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
@@ -63,12 +56,11 @@ class UserController extends Controller
             'role' => $validated['role'],
         ];
 
-        // Handle Logic Approval/Role Change
         if ($validated['role'] === 'curator') {
-            // Set is_approved berdasarkan checkbox di form
+
             $updateData['is_approved'] = $request->has('is_approved');
         } else {
-            // Jika diubah ke Member atau Admin, set is_approved menjadi true secara default
+
             $updateData['is_approved'] = true;
         }
 
@@ -78,34 +70,24 @@ class UserController extends Controller
                          ->with('success', "User '{$user->name}' berhasil diperbarui.");
     }
     
-    /**
-     * Memperbarui Status Persetujuan (Approval) Curator dari list INDEX (Tombol Terima).
-     */
     public function updateApproval(User $user): RedirectResponse
     {
         if ($user->role !== 'curator') {
             return back()->with('error', 'Gagal: Fitur persetujuan hanya berlaku untuk peran Curator.');
         }
 
-        // Set status menjadi TRUE
         $user->update(['is_approved' => true]);
         
-        // Tambahkan fresh() untuk memastikan model memiliki data terbaru saat redirect
         $user->fresh(); 
 
         $message = 'disetujui';
 
-        // 💡 PERBAIKAN: Arahkan ke filter 'curator'.
         return redirect()->route('admin.users.index', ['status' => 'curator']) 
                          ->with('success', "Curator '{$user->name}' berhasil {$message}.");
     }
 
-    /**
-     * Menghapus pengguna (Dipakai oleh Tombol Tolak/Hapus).
-     */
     public function destroy(User $user): RedirectResponse
     {
-        // Tidak boleh menghapus diri sendiri (Admin yang sedang login)
         if (auth()->user()->id === $user->id) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }

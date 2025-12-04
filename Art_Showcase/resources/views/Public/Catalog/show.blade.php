@@ -72,12 +72,13 @@
             
             {{-- Info Kreator --}}
             <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-primary text-white text-center">Kreator</div>
-                <div class="card-body text-center">
-                    <img src="https://via.placeholder.com/100/007bff/ffffff?text=A" class="rounded-circle mb-3" alt="Avatar">
-                    <h5><a href="{{ route('creator.profile', $artwork->user) }}" class="text-decoration-none">{{ $artwork->user->name }}</a></h5>
-                    <p class="badge bg-secondary">{{ $artwork->user->role }}</p>
-                    <p class="small text-muted">{{ $artwork->user->bio ?? 'Kreator ini belum menambahkan bio.' }}</p>
+            <div class="card-header bg-primary text-white text-center">Kreator</div>
+            <div class="card-body text-center">
+                {{-- ✅ PASTIKAN LINK INI ADA --}}
+                <h5><a href="{{ route('creator.profile', $artwork->user) }}" class="text-decoration-none fw-bold">
+                    {{ $artwork->user->display_name ?? $artwork->user->name }}
+                </a></h5>
+                <p class="badge bg-secondary">{{ $artwork->user->role }}</p>
                 </div>
             </div>
 

@@ -9,9 +9,7 @@ use Illuminate\View\View;
 
 class FavoriteController extends Controller
 {
-    /**
-     * Display a listing of the resource (My Favorites).
-     */
+    
     public function index(): View
     {
         // Mengambil semua Favorite yang dibuat oleh user yang sedang login

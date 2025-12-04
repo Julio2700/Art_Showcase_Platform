@@ -31,8 +31,7 @@
     <div class="card shadow h-100 border-0" 
      onmouseover="this.style.boxShadow='0 10px 20px rgba(0,0,0,0.2)'; this.style.transform='scale(1.03)'" 
      onmouseout="this.style.boxShadow='0 2px 5px rgba(0,0,0,0.1)'; this.style.transform='scale(1)'"
-     style="transition: all 0.3s ease-in-out;"> 
-    {{-- ... --}}
+     style="transition: all 0.3s ease-in-out;">
 </div>
 
     @if ($artworks->isEmpty())

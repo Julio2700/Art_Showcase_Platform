@@ -15,17 +15,13 @@ use Illuminate\Validation\Rule;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
+
     public function create(): View
     {
         return view('auth.register'); 
     }
 
     /**
-     * Handle an incoming registration request.
-     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
@@ -38,7 +34,7 @@ class RegisteredUserController extends Controller
         ]);
 
         $role = $request->role;
-        // Curator = Pending (false), Member = Langsung Approved (true)
+
         $isApproved = ($role === 'curator') ? false : true; 
 
         $user = User::create([
@@ -52,9 +48,6 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        // ❌ HAPUS: Auth::login($user); <--- Auto-Login dinonaktifkan
-        
-        // 💡 REDIRECT FINAL: Semua pengguna diarahkan ke Login dengan pesan yang sesuai
         if ($role === 'member') {
             return redirect()->route('login')->with('success', 'Pendaftaran Member berhasil! Silakan masuk.');
         } else {

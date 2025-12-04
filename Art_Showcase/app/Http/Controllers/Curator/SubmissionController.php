@@ -15,10 +15,6 @@ use Illuminate\Support\Facades\DB;
 
 class SubmissionController extends Controller
 {
-    // Hanya menggunakan method yang dibutuhkan untuk meninjau dan memilih pemenang
-    
-    // READ: Menampilkan galeri submission untuk challenge tertentu
-    // URL: /curator/submissions/{challenge}
     public function index(Challenge $challenge): View
     {
         // Otorisasi: Memastikan Challenge ini milik Curator yang sedang login
@@ -35,10 +31,6 @@ class SubmissionController extends Controller
         return view('curator.submissions.index', compact('challenge', 'submissions'));
     }
 
-    /**
-     * Memilih atau menghapus status pemenang (Select Winners).
-     * URL: /curator/submissions/{submission}/set-winner
-     */
     public function setWinner(Request $request, Submission $submission): RedirectResponse
     {
         // Otorisasi: Memastikan Challenge ini milik Curator yang sedang login
@@ -72,11 +64,7 @@ class SubmissionController extends Controller
 
         return back()->with('success', "Karya '{$submission->artwork->title}' berhasil ditetapkan sebagai Juara {$validated['placement']}!");
     }
-
-    /**
-     * Menghapus karya dari daftar Submission Challenge (Memvalidasi/Menolak Submission).
-     * URL: /curator/submissions/{submission} (DELETE)
-     */
+    
     public function destroy(Submission $submission): RedirectResponse
     {
         // Otorisasi: Hanya Challenge Curator yang bisa menolak submission
@@ -89,6 +77,10 @@ class SubmissionController extends Controller
         return back()->with('success', 'Submission berhasil ditolak dan dihapus dari challenge.');
     }
 
+    /**
+     * Menampilkan form untuk memilih pemenang (Target route: curator.challenges.show_winners).
+     */
+    // 💡 Hapus semua logic validasi dan pastikan hanya menerima Challenge
     public function showWinnersForm(Challenge $challenge): View
     {
         // Otorisasi: Hanya Curator pemilik challenge yang bisa memilih pemenang
@@ -96,7 +88,7 @@ class SubmissionController extends Controller
             abort(403, 'Anda tidak berhak memilih pemenang untuk challenge ini.');
         }
 
-        // Memuat submissions yang belum ditetapkan sebagai pemenang
+        // Memuat submissions untuk mengisi dropdown
         $submissions = $challenge->submissions()
                                  ->with('artwork.user')
                                  ->get();
@@ -114,8 +106,8 @@ class SubmissionController extends Controller
         // 2. Validasi ID Submission dan mencegah duplikasi
         $validated = $request->validate([
             'winner_1' => ['required', 'exists:submissions,id'],
-            'winner_2' => ['required', 'exists:submissions,id', 'different:winner_1'],
-            'winner_3' => ['required', 'exists:submissions,id', 'different:winner_1', 'different:winner_2'],
+            'winner_2' => ['nullable', 'exists:submissions,id', 'different:winner_1'], // 💡 UBAH JADI NULLABLE
+            'winner_3' => ['nullable', 'exists:submissions,id', 'different:winner_1', 'different:winner_2'], // 💡 UBAH JADI NULLABLE
         ]);
 
         // 3. Pengecekan Kritis: Challenge harus sudah berakhir
@@ -124,18 +116,23 @@ class SubmissionController extends Controller
         }
 
         // 4. Update Database
-        DB::transaction(function () use ($validated, $challenge) {
+       DB::transaction(function () use ($validated, $challenge) {
             
-            // 4a. Reset semua status pemenang lama (penting!)
-            // Hanya reset submissions yang terkait dengan challenge ini
+            // Reset semua status pemenang lama 
             Submission::where('challenge_id', $challenge->id)->update(['is_winner' => false, 'placement' => null]);
             
-            // 4b. Tetapkan Juara 1, 2, 3
+            // Tetapkan Juara 1 (Wajib)
             Submission::where('id', $validated['winner_1'])->update(['is_winner' => true, 'placement' => 1]);
             
-            Submission::where('id', $validated['winner_2'])->update(['is_winner' => true, 'placement' => 2]);
+            // Tetapkan Juara 2 (Opsional)
+            if (!empty($validated['winner_2'])) { 
+                Submission::where('id', $validated['winner_2'])->update(['is_winner' => true, 'placement' => 2]);
+            }
             
-            Submission::where('id', $validated['winner_3'])->update(['is_winner' => true, 'placement' => 3]);
+            // Tetapkan Juara 3 (Opsional)
+            if (!empty($validated['winner_3'])) { 
+                Submission::where('id', $validated['winner_3'])->update(['is_winner' => true, 'placement' => 3]);
+            }
         });
 
         return redirect()->route('curator.challenges.index')

@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class SubmissionController extends Controller
 {
-    /**
-     * Menampilkan form pemilihan Artwork untuk disubmit ke Challenge tertentu.
-     */
+
     public function create(Challenge $challenge): View
     {
         if (Auth::user()->role === 'curator') {
@@ -32,9 +30,6 @@ class SubmissionController extends Controller
         return view('member.submissions.create', compact('challenge', 'artworks'));
     }
 
-    /**
-     * Menyimpan submission (menghubungkan Artwork ke Challenge).
-     */
     public function store(Request $request, Challenge $challenge): RedirectResponse
     {
         if (Auth::user()->role === 'curator') {

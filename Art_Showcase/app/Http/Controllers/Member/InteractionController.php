@@ -14,9 +14,6 @@ use Illuminate\Support\Facades\Auth;
 
 class InteractionController extends Controller
 {
-    /**
-     * Like/Unlike Karya.
-     */
     public function toggleLike(Artwork $artwork): RedirectResponse
     {
         $like = Like::where('user_id', Auth::id())
@@ -37,9 +34,6 @@ class InteractionController extends Controller
         return back()->with('success', $message);
     }
 
-    /**
-     * Tambah/Hapus dari Favorite.
-     */
     public function toggleFavorite(Artwork $artwork): RedirectResponse
     {
         $favorite = Favorite::where('user_id', Auth::id())
@@ -60,9 +54,6 @@ class InteractionController extends Controller
         return back()->with('success', $message);
     }
 
-    /**
-     * Tambah Komentar.
-     */
     public function addComment(Request $request, Artwork $artwork): RedirectResponse
     {
         $validated = $request->validate(['content' => 'required|string|max:1000']);
@@ -76,9 +67,6 @@ class InteractionController extends Controller
         return back()->with('success', 'Komentar berhasil ditambahkan.');
     }
 
-    /**
-     * Report Content.
-     */
     public function reportContent(Request $request, Artwork $artwork): RedirectResponse
     {
         $validated = $request->validate([

@@ -8,7 +8,7 @@
         </p>
     </header>
 
-    {{-- Form Verifikasi Email (harus terpisah) --}}
+    {{-- Form Verifikasi Email (dibiarkan terpisah) --}}
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
@@ -18,22 +18,28 @@
         @csrf
         @method('patch') 
         
-        {{-- INPUT AVATAR --}}
-        <div class="mb-4 text-center">
-            <img src="{{ $user->avatar_path ? asset('storage/' . $user->avatar_path) : 'https://via.placeholder.com/100/CCCCCC/FFFFFF?text=AVATAR' }}" 
-                alt="Avatar" class="rounded-circle mb-2" style="width: 100px; height: 100px; object-fit: cover;">
-            <x-input-label for="avatar" :value="__('Foto Profil')" />
-            <input type="file" name="avatar" id="avatar" class="block w-full text-sm text-gray-500 file:me-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
-            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
-        </div>
+        {{-- 💡 INPUT AVATAR (Dikembalikan & Ditempatkan di sini) --}}
+       <div class="mb-4 text-center">
+    {{-- ✅ Pastikan Path Fallback ini berfungsi dan menggunakan path DB --}}
+    <img src="{{ $user->avatar_path ? asset('storage/' . $user->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=007BFF&color=fff&size=100' }}" 
+        alt="Avatar" class="rounded-circle mb-2" style="width: 100px; height: 100px; object-fit: cover;">
+    
+    </div>
         
+        {{-- INPUT DISPLAY NAME --}}
+        <div>
+            <x-input-label for="display_name" :value="__('Display Name Publik')" />
+            <x-text-input id="display_name" name="display_name" type="text" class="mt-1 block w-full" :value="old('display_name', $user->display_name)" autocomplete="display_name" />
+            <x-input-error class="mt-2" :messages="$errors->get('display_name')" />
+        </div>
+
         {{-- INPUT NAME --}}
         <div>
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
-
+        
         {{-- INPUT EMAIL --}}
         <div>
             <x-input-label for="email" :value="__('Email')" />
@@ -43,26 +49,11 @@
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
             @endif
         </div>
-
-        <div class="mb-4 text-center">
-        {{-- PASTIKAN MENGGUNAKAN FALLBACK JIKA AVATAR_PATH KOSONG --}}
-        <img src="{{ $user->avatar_path ? asset('storage/' . $user->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=random' }}" 
-             alt="Avatar" class="rounded-circle mb-2" style="width: 100px; height: 100px; object-fit: cover;">
         
-        </div>
-
+        {{-- ❌ INPUT BIO DIHAPUS DARI SINI --}}
+        
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
-        </div>
+            </div>
     </form>
 </section>

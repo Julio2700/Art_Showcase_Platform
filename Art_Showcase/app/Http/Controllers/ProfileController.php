@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -22,15 +19,11 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information (Termasuk Avatar dan Info Publik).
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
         $validated = $request->validated();
 
-        // 💡 Handle Avatar Upload (Poin Kritis)
         if ($request->hasFile('avatar')) {
             // Hapus avatar lama jika ada (jika user->avatar_path adalah kolom yang benar)
             if ($user->avatar_path) {
@@ -44,16 +37,10 @@ class ProfileController extends Controller
             unset($validated['avatar']); 
         }
         
-        // 💡 Handle Info Publik (display_name, bio)
-        // Note: Asumsi ProfileUpdateRequest mengizinkan field ini
         if ($request->has('display_name')) {
              $validated['display_name'] = $request->input('display_name');
         }
-        if ($request->has('bio')) {
-             $validated['bio'] = $request->input('bio');
-        }
 
-        // Fill data yang tersisa (name, email, display_name, bio, avatar_path)
         $user->fill($validated);
 
         if ($user->isDirty('email')) {
@@ -65,9 +52,6 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
@@ -76,7 +60,6 @@ class ProfileController extends Controller
 
         $user = $request->user();
         
-        // 💡 Tambahkan: Hapus avatar fisik saat akun dihapus
         if ($user->avatar_path) {
             Storage::disk('public')->delete($user->avatar_path);
         }

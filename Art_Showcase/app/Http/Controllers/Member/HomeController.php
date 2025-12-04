@@ -30,7 +30,18 @@ class HomeController extends Controller
                 
             case 'member':
             default:
-                return view('member.dashboard'); 
+                $userId = Auth::id();
+
+                $memberArtworks = \App\Models\Artwork::where('user_id', $userId)
+                                                    ->withCount(['likes', 'favorites'])
+                                                    ->latest()
+                                                    ->paginate(12);
+                                                    
+                $totalLikesReceived = \App\Models\Like::whereHas('artwork', function($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })->count();
+                
+                return view('member.dashboard', compact('memberArtworks', 'totalLikesReceived')); 
         }
     }
 }
