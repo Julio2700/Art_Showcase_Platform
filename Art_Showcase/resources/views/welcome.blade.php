@@ -71,7 +71,7 @@
     <hr class="my-5">
 
     {{-- 2. SECTION: CHALLENGE AKTIF (DI BAWAH) --}}
-    <h2 class="mb-4 display-6 fw-normal text-warning"><i class="bi bi-award-fill me-2"></i> Challenge Aktif</h2>
+    <h2 class="mb-4 display-6 fw-normal text-warning"><i class="bi bi-award-fill me-2"></i> Challenge</h2> 
     <div class="row">
         @forelse ($challenges as $challenge)
             <div class="col-md-4 mb-4">
@@ -101,7 +101,7 @@
                 </div>
             </div>
             
-        @empty
+       @empty
             <div class="col-12">
                 <div class="alert alert-info">Saat ini tidak ada challenge yang sedang berlangsung.</div>
             </div>
