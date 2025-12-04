@@ -15,19 +15,17 @@
 
     <div class="d-flex justify-content-between mb-4">
         @if ($isOver && !$hasWinners)
-            <div class="alert alert-danger p-2 mb-0">Challenge Selesai! Pilih pemenang sekarang.</div>
-            {{-- Mengarahkan ke view pemilihan pemenang (winners.blade.php) --}}
             <a href="{{ route('curator.challenges.show_winners', $challenge) }}" class="btn btn-lg btn-danger">
                 <i class="bi bi-trophy-fill me-2"></i> Pilih Pemenang
             </a>
         @elseif ($hasWinners)
              <div class="alert alert-success p-2 mb-0">Pemenang telah ditetapkan.</div>
-             <a href="{{ route('curator.challenges.show_winners', $challenge) }}" class="btn btn-lg btn-success">
+             {{-- 💡 PERBAIKAN: Arahkan ke Halaman Publik untuk melihat hasil --}}
+             <a href="{{ route('challenges.show', $challenge) }}" class="btn btn-lg btn-success">
                 <i class="bi bi-trophy-fill me-2"></i> Lihat Pemenang
             </a>
         @else
-            <div class="alert alert-warning p-2 mb-0">Challenge masih aktif (berakhir {{ $challenge->ends_at->diffForHumans() }}).</div>
-        @endif
+            @endif
     </div>
 
     <hr>

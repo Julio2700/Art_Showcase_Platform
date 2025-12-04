@@ -63,12 +63,13 @@ class ChallengeController extends Controller
     {
         $curatorId = Auth::id();
         
-        // Memuat challenge milik curator saat ini, dan menghitung submissions untuk setiap challenge
+        // 💡 SOLUSI: HANYA FILTER BERDASARKAN KEPEMILIKAN
+        // Ini akan memuat SEMUA challenge milik curator ini, dan View akan mengurus statusnya (Aktif, Akan Datang, Selesai).
         $challenges = Challenge::where('curator_id', $curatorId)
                                ->withCount('submissions')
                                ->latest()
-                               ->paginate(10);
-                               
+                               ->paginate(10); // Gunakan paginate
+
         return view('curator.challenges.index', compact('challenges'));
     }
 
@@ -162,5 +163,26 @@ class ChallengeController extends Controller
 
         return redirect()->route('curator.challenges.index')
                          ->with('success', "Challenge '{$challenge->title}' berhasil dihapus.");
+    }
+
+    public function show(Challenge $challenge): View
+    {
+        // Load submissions yang diterima
+        $submissions = $challenge->submissions()
+                                 ->with(['artwork.user']) 
+                                 ->paginate(20);
+                                 
+        // Cek apakah challenge sudah berakhir
+        $is_over = $challenge->ends_at->isPast();
+        
+        // Ambil pemenang (jika ada)
+        // 💡 PERBAIKAN KRITIS: PASTIKAN with('artwork.user') DIMUAT UNTUK WINNERS
+        $winners = $challenge->submissions()
+                             ->where('is_winner', true)
+                             ->with('artwork.user') // <-- Wajib dimuat agar View bisa akses $winner->artwork->user->name
+                             ->orderBy('placement')
+                             ->get();
+
+        return view('public.challenge.show', compact('challenge', 'submissions', 'is_over', 'winners'));
     }
 }

@@ -123,19 +123,18 @@ class SubmissionController extends Controller
              return back()->with('error', 'Challenge belum berakhir. Pemenang hanya dapat ditetapkan setelah deadline.');
         }
 
-        // 4. Update Database (Massal, untuk memastikan atomisitas)
-        DB::transaction(function () use ($validated) {
+        // 4. Update Database
+        DB::transaction(function () use ($validated, $challenge) {
             
-            // 4a. Reset semua status pemenang lama (jika ada)
-            Submission::whereIn('id', $validated)->update(['is_winner' => false, 'placement' => null]);
+            // 4a. Reset semua status pemenang lama (penting!)
+            // Hanya reset submissions yang terkait dengan challenge ini
+            Submission::where('challenge_id', $challenge->id)->update(['is_winner' => false, 'placement' => null]);
             
-            // 4b. Tetapkan Juara 1
+            // 4b. Tetapkan Juara 1, 2, 3
             Submission::where('id', $validated['winner_1'])->update(['is_winner' => true, 'placement' => 1]);
             
-            // 4c. Tetapkan Juara 2
             Submission::where('id', $validated['winner_2'])->update(['is_winner' => true, 'placement' => 2]);
             
-            // 4d. Tetapkan Juara 3
             Submission::where('id', $validated['winner_3'])->update(['is_winner' => true, 'placement' => 3]);
         });
 

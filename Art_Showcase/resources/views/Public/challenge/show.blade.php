@@ -105,24 +105,21 @@
             
             {{-- HASIL PEMENANG --}}
             @if ($is_over)
-                <div class="card shadow-lg border-primary mb-4">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4 class="mb-0"><i class="bi bi-trophy-fill"></i> Pemenang Diumumkan!</h4>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        @forelse ($winners as $winner)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <strong>Juara {{ $winner->placement }}</strong>
-                                <span>
-                                    <a href="{{ route('artworks.show', $winner->artwork) }}" class="text-decoration-none text-primary">
-                                        {{ Str::limit($winner->artwork->title, 20) }}
-                                    </a>
-                                    (oleh {{ $winner->artwork->user->display_name ?? $winner->artwork->user->name }})
-                                </span>
-                            </li>
-                        @empty
-                            <li class="list-group-item text-center text-muted">Pemenang belum ditetapkan.</li>
-                        @endforelse
+                <ul class="list-group list-group-flush">
+                       @forelse ($winners as $winner)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Juara {{ $winner->placement }}</strong>
+                            <span>
+                                <a href="{{ route('artworks.show', $winner->artwork) }}" class="text-decoration-none text-primary">
+                                    {{ Str::limit($winner->artwork->title, 20) }}
+                                </a>
+                                {{-- 💡 PASTIKAN MENGGUNAKAN NULLSAFE OPERATOR --}}
+                                (oleh {{ $winner->artwork->user?->display_name ?? $winner->artwork->user?->name ?? 'Kreator Dihapus' }})
+                            </span>
+                        </li>
+                    @empty
+                        <li class="list-group-item text-center text-muted">Pemenang belum ditetapkan.</li>
+                    @endforelse
                     </ul>
                 </div>
             @endif

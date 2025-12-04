@@ -13,7 +13,7 @@ class ChallengeController extends Controller
      */
     public function show(Challenge $challenge): View
     {
-       // Load submissions yang diterima (is_active = true)
+        // Load submissions yang diterima
         $submissions = $challenge->submissions()
                                  ->with(['artwork.user']) 
                                  ->paginate(20);
@@ -22,10 +22,10 @@ class ChallengeController extends Controller
         $is_over = $challenge->ends_at->isPast();
         
         // Ambil pemenang (jika ada)
-        // 💡 PERBAIKAN: PASTIKAN with('artwork.user') DIMUAT UNTUK WINNERS
+        // 💡 PERBAIKAN: PASTIKAN with('artwork.user') DIMUAT UNTUK KOLEKSI $WINNERS
         $winners = $challenge->submissions()
                              ->where('is_winner', true)
-                             ->with('artwork.user') 
+                             ->with('artwork.user') // <-- Wajib agar View dapat membaca data Kreator
                              ->orderBy('placement')
                              ->get();
 

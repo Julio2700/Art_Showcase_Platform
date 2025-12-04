@@ -40,10 +40,19 @@ class ArtworkCatalogController extends Controller
         $categories = Category::all();
         
         // Query Challenge Aktif (Untuk ditampilkan di homepage/catalog)
-        $challenges = Challenge::where('ends_at', '>=', now())
-                               ->orderBy('ends_at')
-                               ->take(3)
-                               ->get();
+        $challenges = Challenge::query()
+    // 💡 SOLUSI: Tampilkan Challenge yang sedang berjalan/akan datang
+    ->where('ends_at', '>=', now()) 
+    ->orWhere(function ($query) {
+        // ATAU Challenge yang sudah berakhir (ends_at < now()) DAN sudah ada pemenang
+        $query->where('ends_at', '<', now())
+              ->whereHas('submissions', function ($q) {
+                  $q->where('is_winner', true);
+              });
+    })
+    ->orderBy('ends_at', 'ASC') // Urutkan berdasarkan waktu berakhir
+    ->take(4) // Ambil sedikit lebih banyak untuk tampilan homepage
+    ->get();
 
         // 💡 PERBAIKAN: Hapus baris 'return' yang tidak pada tempatnya.
         // return view('public.catalog.index', compact('artworks', 'categories', 'challenges')); // <--- Hapus atau Non-Aktifkan Baris Ini
